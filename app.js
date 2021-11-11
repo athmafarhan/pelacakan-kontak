@@ -17243,15 +17243,15 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ }),
 
-/***/ "./src/models/Movie.js":
-/*!*****************************!*\
-  !*** ./src/models/Movie.js ***!
-  \*****************************/
+/***/ "./src/models/Person.js":
+/*!******************************!*\
+  !*** ./src/models/Person.js ***!
+  \******************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
-function Movie(_node) {
+function Person(_node) {
   _.extend(this, _node.properties);
 
   // if (this.id) {
@@ -17267,20 +17267,20 @@ function Movie(_node) {
   // }
 }
 
-module.exports = Movie;
+module.exports = Person;
 
 
 /***/ }),
 
-/***/ "./src/models/MovieCast.js":
-/*!*********************************!*\
-  !*** ./src/models/MovieCast.js ***!
-  \*********************************/
+/***/ "./src/models/PersonInteractionWith.js":
+/*!*********************************************!*\
+  !*** ./src/models/PersonInteractionWith.js ***!
+  \*********************************************/
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
-function MovieCast(nama, interaksi_dengan) {
+function PersonInteractionWith(nama, interaksi_dengan) {
   _.extend(this, {
     nama: nama,
     interaksi_dengan: interaksi_dengan.map(function (c) {
@@ -17293,7 +17293,7 @@ function MovieCast(nama, interaksi_dengan) {
   });
 }
 
-module.exports = MovieCast;
+module.exports = PersonInteractionWith;
 
 
 /***/ }),
@@ -17305,8 +17305,8 @@ module.exports = MovieCast;
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 __webpack_require__(/*! file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js */ "./node_modules/file-loader/dist/cjs.js?name=[name].[ext]!./node_modules/neo4j-driver/lib/browser/neo4j-web.min.js");
-const Movie = __webpack_require__(/*! ./models/Movie */ "./src/models/Movie.js");
-const MovieCast = __webpack_require__(/*! ./models/MovieCast */ "./src/models/MovieCast.js");
+const Movie = __webpack_require__(/*! ./models/Person */ "./src/models/Person.js");
+const MovieCast = __webpack_require__(/*! ./models/PersonInteractionWith */ "./src/models/PersonInteractionWith.js");
 const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 const neo4j = window.neo4j;
@@ -17327,7 +17327,7 @@ const driver = neo4j.driver(
 
 console.log(`Database running at ${neo4jUri}`);
 
-function searchMovies(queryString) {
+function searchPersons(queryString) {
   const session = driver.session({ database: database });
   return session
     .readTransaction((tx) =>
@@ -17348,7 +17348,7 @@ function searchMovies(queryString) {
     });
 }
 
-function getMovie(nama) {
+function getPerson(nama) {
   const session = driver.session({ database: database });
   return session
     .readTransaction((tx) =>
@@ -17430,8 +17430,8 @@ function getGraph() {
     });
 }
 
-exports.searchMovies = searchMovies;
-exports.getMovie = getMovie;
+exports.searchPersons = searchPersons;
+exports.getPerson = getPerson;
 exports.getGraph = getGraph;
 
 
@@ -17556,21 +17556,21 @@ $(function () {
   });
 });
 
-function showMovie(nama) {
-  api.getMovie(nama).then((movie) => {
-    if (!movie) return;
+function showPerson(nama) {
+  api.getPerson(nama).then((person) => {
+    if (!person) return;
 
-    $("#title").text(movie.nama);
+    $("#title").text(person.nama);
     $("#poster").attr(
       "src",
       "https://neo4j-documentation.github.io/developer-resources/language-guides/assets/posters/" +
-        encodeURIComponent(movie.nama) +
+        encodeURIComponent(person.nama) +
         ".jpg"
     );
     const $list = $("#crew").empty();
-    // console.log(movie.interaksi_dengan[0].nama);
-    if (movie.interaksi_dengan[0].nama != null) {
-      movie.interaksi_dengan.forEach((interaksi_dengan) => {
+    // console.log(person.interaksi_dengan[0].nama);
+    if (person.interaksi_dengan[0].nama != null) {
+      person.interaksi_dengan.forEach((interaksi_dengan) => {
         $list.append(
           $(
             "<li>" +
@@ -17592,39 +17592,39 @@ function showMovie(nama) {
 
 function search(showFirst = true) {
   const query = $("#search").find("input[name=search]").val();
-  api.searchMovies(query).then((movies) => {
+  api.searchPersons(query).then((persons) => {
     const t = $("table#results tbody").empty();
 
-    if (movies) {
-      movies.forEach((movie, index) => {
+    if (persons) {
+      persons.forEach((person, index) => {
         $(
           "<tr>" +
-            `<td class='movie'>${movie.nama}</td>` +
-            `<td>${movie.jk}</td>` +
-            `<td>${movie.rt}</td>` +
+            `<td class='person'>${person.nama}</td>` +
+            `<td>${person.jk}</td>` +
+            `<td>${person.rt}</td>` +
             "</tr>"
         )
           .appendTo(t)
           .click(function () {
-            showMovie($(this).find("td.movie").text());
+            showPerson($(this).find("td.person").text());
           });
       });
 
-      const first = movies[0];
+      const first = persons[0];
       if (first && showFirst) {
-        return showMovie(first.nama);
+        return showPerson(first.nama);
       }
     }
   });
 }
 
 function renderGraph() {
-  const width = 800,
+  const width = 550,
     height = 800;
   const force = d3.layout
     .force()
-    .charge(-200)
-    .linkDistance(30)
+    .charge(-25)
+    .linkDistance(5)
     .size([width, height]);
 
   const svg = d3
@@ -17652,7 +17652,7 @@ function renderGraph() {
       .attr("class", (d) => {
         return "node " + d.label;
       })
-      .attr("r", 10)
+      .attr("r", 1)
       .call(force.drag);
 
     // html title attribute
