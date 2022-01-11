@@ -1,6 +1,6 @@
 const _ = require("lodash");
 
-function MovieCast(nama, interaksi_dengan) {
+function PersonInteraction(nama, interaksi_dengan) {
   _.extend(this, {
     nama: nama,
     interaksi_dengan: interaksi_dengan.map(function (c) {
@@ -11,6 +11,6 @@ function MovieCast(nama, interaksi_dengan) {
       };
     }),
   });
-}
+}//objek interaksi pada graf
 
-module.exports = MovieCast;
+module.exports = PersonInteraction;

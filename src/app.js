@@ -11,21 +11,21 @@ $(function () {
   });
 });
 
-function showMovie(nama) {
-  api.getMovie(nama).then((movie) => {
-    if (!movie) return;
+function showPerson(nama) {
+  api.getPerson(nama).then((person) => {
+    if (!person) return;
 
-    $("#title").text(movie.nama);
+    $("#title").text(person.nama);
     $("#poster").attr(
       "src",
       "https://neo4j-documentation.github.io/developer-resources/language-guides/assets/posters/" +
-        encodeURIComponent(movie.nama) +
+        encodeURIComponent(person.nama) +
         ".jpg"
     );
     const $list = $("#crew").empty();
-    // console.log(movie.interaksi_dengan[0].nama);
-    if (movie.interaksi_dengan[0].nama != null) {
-      movie.interaksi_dengan.forEach((interaksi_dengan) => {
+    // console.log(person.interaksi_dengan[0].nama);
+    if (person.interaksi_dengan[0].nama != null) {
+      person.interaksi_dengan.forEach((interaksi_dengan) => {
         $list.append(
           $(
             "<li>" +
@@ -43,35 +43,35 @@ function showMovie(nama) {
       $list.append("<p>Tidak menularkan ke orang lain</p>");
     }
   }, "json");
-}
+}//menunjukkan interaksi masing2 ID kontak setelah klik
 
 function search(showFirst = true) {
   const query = $("#search").find("input[name=search]").val();
-  api.searchMovies(query).then((movies) => {
+  api.searchPersons(query).then((persons) => {
     const t = $("table#results tbody").empty();
 
-    if (movies) {
-      movies.forEach((movie, index) => {
+    if (persons) {
+      persons.forEach((person, index) => {
         $(
           "<tr>" +
-            `<td class='movie'>${movie.nama}</td>` +
-            `<td>${movie.jk}</td>` +
-            `<td>${movie.rt}</td>` +
+            `<td class='person'>${person.nama}</td>` +
+            `<td>${person.jk}</td>` +
+            `<td>${person.rt}</td>` +
             "</tr>"
         )
           .appendTo(t)
           .click(function () {
-            showMovie($(this).find("td.movie").text());
+            showPerson($(this).find("td.person").text());
           });
       });
 
-      const first = movies[0];
+      const first = persons[0];
       if (first && showFirst) {
-        return showMovie(first.nama);
+        return showPerson(first.nama);
       }
     }
   });
-}
+}//menunjukkan hasil funtion searchPerson
 
 function renderGraph() {
   const width = 800,
@@ -140,4 +140,4 @@ function renderGraph() {
         });
     });
   });
-}
+}//generate graf langsung
