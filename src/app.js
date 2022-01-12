@@ -74,11 +74,11 @@ function search(showFirst = true) {
 }//menunjukkan hasil funtion searchPerson
 
 function renderGraph() {
-  const width = 800,
+  const width = 700,
     height = 800;
   const force = d3.layout
     .force()
-    .charge(-200)
+    .charge(-30)
     .linkDistance(30)
     .size([width, height]);
 
@@ -107,7 +107,7 @@ function renderGraph() {
       .attr("class", (d) => {
         return "node " + d.label;
       })
-      .attr("r", 10)
+      .attr("r", 3)
       .call(force.drag);
 
     // html title attribute
