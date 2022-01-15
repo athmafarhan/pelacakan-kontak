@@ -105,7 +105,7 @@ function getGraph() {
     });
 }//mengkontruksikan graf [dinamis]
 
-function centralityDegree() {
+function getcentralityDegree() {
   const session = driver.session({ database: database });
   return session
     .readTransaction((tx) =>
