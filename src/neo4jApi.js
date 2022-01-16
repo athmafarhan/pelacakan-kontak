@@ -1,9 +1,8 @@
 require("file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js");
 const Person = require("./models/Person");
-// const PersonInteraction = require("./models/PersonInteraction");
+const PersonInteraction = require("./models/PersonInteraction");
 const _ = require("lodash");
 // const PersonDegreeCentrality = require("./models/PersonDegreeCentrality");
-// const exports = require("webpack");
 
 const neo4j = window.neo4j;
 const neo4jUri = "neo4j://pelacakan-kontak.my.id:7687";
