@@ -1,9 +1,9 @@
 require("file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js");
 const Person = require("./models/Person");
-const PersonInteraction = require("./models/PersonInteraction");
+// const PersonInteraction = require("./models/PersonInteraction");
 const _ = require("lodash");
-const PersonDegreeCentrality = require("./models/PersonDegreeCentrality");
-const exports = require("webpack");
+// const PersonDegreeCentrality = require("./models/PersonDegreeCentrality");
+// const exports = require("webpack");
 
 const neo4j = window.neo4j;
 const neo4jUri = "neo4j://pelacakan-kontak.my.id:7687";
@@ -22,6 +22,22 @@ const driver = neo4j.driver(
 );
 
 console.log(`Database running at ${neo4jUri}`);
+
+function runQueryCQL(query) {
+  const session = driver.session({ database: database });
+  return session
+    .readTransaction((tx) =>
+      tx.run(query)
+    ).then((result) => {
+      console.log(result);
+    })
+    .catch((error) => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
 
 function searchPersons(queryString) {
   const session = driver.session({ database: database });
@@ -70,21 +86,21 @@ function getPerson(nama) {
 function getGraph() {
   const session = driver.session({ database: database });
   return session
-  .readTransaction((tx) =>
-  tx.run(
-    "MATCH (a:Node)<-[:Kontak_Dengan]-(m:Node) RETURN m.nama AS nama, collect(a.nama) AS interaksi_dengan LIMIT $limit",
-    { limit: neo4j.int(100) }
-    )
+    .readTransaction((tx) =>
+      tx.run(
+        "MATCH (a:Node)<-[:Kontak_Dengan]-(m:Node) RETURN m.nama AS nama, collect(a.nama) AS interaksi_dengan LIMIT $limit",
+        { limit: neo4j.int(100) }
+      )
     )
     .then((results) => {
       const nodes = [],
-      rels = [];
+        rels = [];
       let i = 0;
       results.records.forEach((res) => {
         nodes.push({ nama: res.get("nama"), label: "Node" });
         const target = i;
         i++;
-        
+
         res.get("interaksi_dengan").forEach((nama) => {
           const person = { nama: nama, label: "Node" };
           let source = _.findIndex(nodes, person);
@@ -96,7 +112,7 @@ function getGraph() {
           rels.push({ source, target });
         });
       });
-      
+
       return { nodes, links: rels };
     })
     .catch((error) => {
@@ -128,6 +144,7 @@ function getDegreeCentrality(graf) {
     });
 }
 
+exports.runQueryCQL = runQueryCQL;
 exports.searchPersons = searchPersons;
 exports.getPerson = getPerson;
 exports.getGraph = getGraph;

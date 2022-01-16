@@ -9,6 +9,12 @@ $(function () {
     e.preventDefault();
     search();
   });
+  $(document).on('click', '#submit_cql', function(e) {
+    e.preventDefault();
+    let query = $('#cql_form').val();
+    console.log(query);
+    api.runQueryCQL(query);
+  })
 });
 
 function showPerson(nama) {
