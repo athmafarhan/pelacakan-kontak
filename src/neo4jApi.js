@@ -2,6 +2,8 @@ require("file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/
 const Person = require("./models/Person");
 const PersonInteraction = require("./models/PersonInteraction");
 const _ = require("lodash");
+const PersonDegreeCentrality = require("./models/PersonDegreeCentrality");
+const exports = require("webpack");
 
 const neo4j = window.neo4j;
 const neo4jUri = "neo4j://pelacakan-kontak.my.id:7687";
@@ -105,25 +107,31 @@ function getGraph() {
     });
 }//mengkontruksikan graf [dinamis]
 
-function getcentralityDegree() {
+function getDegreeCentrality(graf) {
   const session = driver.session({ database: database });
   return session
     .readTransaction((tx) =>
       tx.run(
-        //CALL gds.degree.stream('myGraph1')
-//YIELD nodeId, score
-//RETURN gds.util.asNode(nodeId).nama AS name, score AS followers
-//ORDER BY followers DESC, name ASC
-        "MATCH (n:Node {nama:$nama}) OPTIONAL MATCH (m:Node)<-[Kontak_Dengan]-(n) RETURN n.nama AS nama, collect([m.nama, m.jk, m.rt]) AS interaksi_dengan LIMIT 1",
-        { nama }
+        "CALL gds.degree.stream('$graf') YIELD nodeId, score RETURN gds.util.asNode(nodeId).nama AS name, score AS followers ORDER BY followers DESC, name ASC",
+        { graf }
       )
     )
+    .then((result) => {
+      const record = result.records[0];
+      return new PersonDegreeCentrality(record.get("name"), record.get("followers"));
+    })
+    .catch((error) => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
 }
 
 exports.searchPersons = searchPersons;
 exports.getPerson = getPerson;
 exports.getGraph = getGraph;
-
+exports.getDegreeCentrality = getDegreeCentrality;
 
 // function voteInPerson(title) {
 //   const session = driver.session({ database: database });

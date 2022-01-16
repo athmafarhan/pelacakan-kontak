@@ -42,8 +42,22 @@ function showPerson(nama) {
     } else {
       $list.append("<p>Tidak menularkan ke orang lain</p>");
     }
-  }, "json");
-}//menunjukkan interaksi masing2 ID kontak setelah klik
+  },
+  api.getDegreeCentrality(nama).then((person) =>{
+    if (!person) return;
+
+    const $list = $("#degree").empty();
+    if (person.total.nama != null) {
+      person.total.forEach((total) => {
+        $list.append($(total.dc)
+        );
+      });
+    } else {
+      $list.append("<p>Belum memkompile graf</p>");
+    }
+  })
+  , "json");
+}//menunjukkan interaksi masing2 ID kontak setelah klik beserta centrality
 
 function search(showFirst = true) {
   const query = $("#search").find("input[name=search]").val();
