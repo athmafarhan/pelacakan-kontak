@@ -15,6 +15,10 @@ $(function () {
     console.log(query);
     api.runQueryCQL(query);
   })
+  $(document).on('click', '#btn-toggle-panel', function(e) {
+    e.preventDefault();
+    $('#results').toggle()
+  })
 });
 
 function showPerson(nama) {
