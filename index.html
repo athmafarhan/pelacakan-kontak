@@ -25,7 +25,7 @@
             <li>
               <form role="search" class="navbar-form" id="search">
                 <div class="form-group">
-                  <input type="text" value="" placeholder="Search for Movie Title" class="form-control" name="search" />
+                  <input type="text" value="" placeholder="Search ID kontak" class="form-control" name="search" />
                 </div>
                 <button class="btn btn-default" type="submit">Search</button>
               </form>
@@ -41,7 +41,7 @@
             </a>
           </div>
           <div class="navbar-brand">
-            <div class="brand">Neo4j</div>
+            <div class="brand">Pelacakan Kontak Covid</div>
           </div>
         </div>
       </div>
@@ -78,18 +78,24 @@
             <h4>Interaksi dengan</h4>
             <ul id="crew"></ul>
             <h4>Degree Centrality</h4>
-            <p></p>
+            <p id="degree"></p>
             <h4>Betweenness Centrality</h4>
             <p></p>
           </div>
         </div>
       </div>
       <div class="panel panel-default">
-        <div class="panel-heading"></div>
+        <div class="panel-heading">Import CQL Neo4J GraphDB</div>
         <div class="row">
-          <div class="col-md-12">test</div>
+          <div class="col-md-12">
+            <label style="margin-top: 1.25rem;" for="import_cql">Import CQL</label>
+            <textarea style="margin-bottom: 1.5rem;" class="form-control" id="cql_form" rows="5" placeholder="Contoh Query: CREATE (G999:Node:Positif {nama:'G999', rt:'29', jk:'Laki-laki', covid:'Positif', dc:'29', bc:'29'})"></textarea>
+          </div>
+
         </div>
-        <div class="panel-footer"></div>
+        <div class="panel-footer">
+          <button class="btn btn-primary" type="button" id="submit_cql">Upload</button>
+        </div>
       </div>
     </div>
   </div>

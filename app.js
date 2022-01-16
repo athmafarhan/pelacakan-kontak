@@ -17261,32 +17261,6 @@ module.exports = Person;
 
 /***/ }),
 
-/***/ "./src/models/PersonInteraction.js":
-/*!*****************************************!*\
-  !*** ./src/models/PersonInteraction.js ***!
-  \*****************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-
-function PersonInteraction(nama, interaksi_dengan) {
-  _.extend(this, {
-    nama: nama,
-    interaksi_dengan: interaksi_dengan.map(function (c) {
-      return {
-        nama: c[0],
-        jk: c[1],
-        rt: c[2],
-      };
-    }),
-  });
-}//objek interaksi pada graf
-
-module.exports = PersonInteraction;
-
-
-/***/ }),
-
 /***/ "./src/neo4jApi.js":
 /*!*************************!*\
   !*** ./src/neo4jApi.js ***!
@@ -17295,8 +17269,10 @@ module.exports = PersonInteraction;
 
 __webpack_require__(/*! file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js */ "./node_modules/file-loader/dist/cjs.js?name=[name].[ext]!./node_modules/neo4j-driver/lib/browser/neo4j-web.min.js");
 const Person = __webpack_require__(/*! ./models/Person */ "./src/models/Person.js");
-const PersonInteraction = __webpack_require__(/*! ./models/PersonInteraction */ "./src/models/PersonInteraction.js");
+// const PersonInteraction = require("./models/PersonInteraction");
 const _ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+// const PersonDegreeCentrality = require("./models/PersonDegreeCentrality");
+// const exports = require("webpack");
 
 const neo4j = window.neo4j;
 const neo4jUri = "neo4j://pelacakan-kontak.my.id:7687";
@@ -17315,6 +17291,22 @@ const driver = neo4j.driver(
 );
 
 console.log(`Database running at ${neo4jUri}`);
+
+function runQueryCQL(query) {
+  const session = driver.session({ database: database });
+  return session
+    .readTransaction((tx) =>
+      tx.run(query)
+    ).then((result) => {
+      console.log(result);
+    })
+    .catch((error) => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
 
 function searchPersons(queryString) {
   const session = driver.session({ database: database });
@@ -17363,21 +17355,21 @@ function getPerson(nama) {
 function getGraph() {
   const session = driver.session({ database: database });
   return session
-  .readTransaction((tx) =>
-  tx.run(
-    "MATCH (a:Node)<-[:Kontak_Dengan]-(m:Node) RETURN m.nama AS nama, collect(a.nama) AS interaksi_dengan LIMIT $limit",
-    { limit: neo4j.int(100) }
-    )
+    .readTransaction((tx) =>
+      tx.run(
+        "MATCH (a:Node)<-[:Kontak_Dengan]-(m:Node) RETURN m.nama AS nama, collect(a.nama) AS interaksi_dengan LIMIT $limit",
+        { limit: neo4j.int(100) }
+      )
     )
     .then((results) => {
       const nodes = [],
-      rels = [];
+        rels = [];
       let i = 0;
       results.records.forEach((res) => {
         nodes.push({ nama: res.get("nama"), label: "Node" });
         const target = i;
         i++;
-        
+
         res.get("interaksi_dengan").forEach((nama) => {
           const person = { nama: nama, label: "Node" };
           let source = _.findIndex(nodes, person);
@@ -17389,7 +17381,7 @@ function getGraph() {
           rels.push({ source, target });
         });
       });
-      
+
       return { nodes, links: rels };
     })
     .catch((error) => {
@@ -17400,25 +17392,32 @@ function getGraph() {
     });
 }//mengkontruksikan graf [dinamis]
 
-function centralityDegree() {
+function getDegreeCentrality(graf) {
   const session = driver.session({ database: database });
   return session
     .readTransaction((tx) =>
       tx.run(
-        //CALL gds.degree.stream('myGraph1')
-//YIELD nodeId, score
-//RETURN gds.util.asNode(nodeId).nama AS name, score AS followers
-//ORDER BY followers DESC, name ASC
-        "MATCH (n:Node {nama:$nama}) OPTIONAL MATCH (m:Node)<-[Kontak_Dengan]-(n) RETURN n.nama AS nama, collect([m.nama, m.jk, m.rt]) AS interaksi_dengan LIMIT 1",
-        { nama }
+        "CALL gds.degree.stream('$graf') YIELD nodeId, score RETURN gds.util.asNode(nodeId).nama AS name, score AS followers ORDER BY followers DESC, name ASC",
+        { graf }
       )
     )
+    .then((result) => {
+      const record = result.records[0];
+      return new PersonDegreeCentrality(record.get("name"), record.get("followers"));
+    })
+    .catch((error) => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
 }
 
+exports.runQueryCQL = runQueryCQL;
 exports.searchPersons = searchPersons;
 exports.getPerson = getPerson;
 exports.getGraph = getGraph;
-
+exports.getDegreeCentrality = getDegreeCentrality;
 
 // function voteInPerson(title) {
 //   const session = driver.session({ database: database });
@@ -17558,6 +17557,12 @@ $(function () {
     e.preventDefault();
     search();
   });
+  $(document).on('click', '#submit_cql', function(e) {
+    e.preventDefault();
+    let query = $('#cql_form').val();
+    console.log(query);
+    api.runQueryCQL(query);
+  })
 });
 
 function showPerson(nama) {
@@ -17591,8 +17596,22 @@ function showPerson(nama) {
     } else {
       $list.append("<p>Tidak menularkan ke orang lain</p>");
     }
-  }, "json");
-}//menunjukkan interaksi masing2 ID kontak setelah klik
+  },
+  api.getDegreeCentrality(nama).then((person) =>{
+    if (!person) return;
+
+    const $list = $("#degree").empty();
+    if (person.total.nama != null) {
+      person.total.forEach((total) => {
+        $list.append($(total.dc)
+        );
+      });
+    } else {
+      $list.append("<p>Belum memkompile graf</p>");
+    }
+  })
+  , "json");
+}//menunjukkan interaksi masing2 ID kontak setelah klik beserta centrality
 
 function search(showFirst = true) {
   const query = $("#search").find("input[name=search]").val();
