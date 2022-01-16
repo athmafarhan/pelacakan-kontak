@@ -25,7 +25,7 @@ console.log(`Database running at ${neo4jUri}`);
 function runQueryCQL(query) {
   const session = driver.session({ database: database });
   return session
-    .readTransaction((tx) =>
+    .writeTransaction((tx) =>
       tx.run(query)
     ).then((result) => {
       console.log(result);
