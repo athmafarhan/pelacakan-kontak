@@ -16,19 +16,26 @@ $(function () {
     console.log(query);
     api.runQueryCQL(query);
   })
+
   $(document).on('click', '#submit_csv', function (e) {
     e.preventDefault();
-    console.log(Papa);
-    // let fileInput = document.getElementById("csv_form")
-    // console.log(fileInput.files);
-    // let reader = new FileReader();
-    // // reader.onload = function () {
-    // //   document.getElementById('out').innerHTML = reader.result;
-    // // };
-    // // start reading the file. When it is done, calls the onload event defined above.
-    // reader.readAsBinaryString(fileInput.files[0]);
-    // let filecsv = reader.result
-    // console.log(filecsv);
+    let queryInisialitation = ""
+
+    let csv_form = document.getElementById("csv_form")
+    let fileCSV = csv_form.files[0];
+    // console.log(csv_form.files[0]);
+
+    Papa.parse(fileCSV, {
+      complete: function (results) {
+        for (let i = 0; i < results.data.length - 1; i++) {
+          let element = results.data[i];
+          let query = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "');\n";
+          queryInisialitation += query
+        }
+        console.log(queryInisialitation);
+        // console.log("Finished:", results.data);
+      }
+    })
   })
   $(document).on('click', '#btn-toggle-panel', function (e) {
     e.preventDefault();
