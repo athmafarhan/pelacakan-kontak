@@ -1,5 +1,6 @@
 require("file-loader?name=[name].[ext]!./assets/images/favicon.ico");
 const api = require("./neo4jApi");
+const Papa = require("papaparse");
 
 $(function () {
   renderGraph();
@@ -9,13 +10,27 @@ $(function () {
     e.preventDefault();
     search();
   });
-  $(document).on('click', '#submit_cql', function(e) {
+  $(document).on('click', '#submit_cql', function (e) {
     e.preventDefault();
     let query = $('#cql_form').val();
     console.log(query);
     api.runQueryCQL(query);
   })
-  $(document).on('click', '#btn-toggle-panel', function(e) {
+  $(document).on('click', '#submit_csv', function (e) {
+    e.preventDefault();
+    console.log(Papa);
+    // let fileInput = document.getElementById("csv_form")
+    // console.log(fileInput.files);
+    // let reader = new FileReader();
+    // // reader.onload = function () {
+    // //   document.getElementById('out').innerHTML = reader.result;
+    // // };
+    // // start reading the file. When it is done, calls the onload event defined above.
+    // reader.readAsBinaryString(fileInput.files[0]);
+    // let filecsv = reader.result
+    // console.log(filecsv);
+  })
+  $(document).on('click', '#btn-toggle-panel', function (e) {
     e.preventDefault();
     $('#results').toggle()
   })
@@ -29,8 +44,8 @@ function showPerson(nama) {
     $("#poster").attr(
       "src",
       "https://neo4j-documentation.github.io/developer-resources/language-guides/assets/posters/" +
-        encodeURIComponent(person.nama) +
-        ".jpg"
+      encodeURIComponent(person.nama) +
+      ".jpg"
     );
     const $list = $("#crew").empty();
     // console.log(person.interaksi_dengan[0].nama);
@@ -39,13 +54,13 @@ function showPerson(nama) {
         $list.append(
           $(
             "<li>" +
-              "Nama: " +
-              interaksi_dengan.nama +
-              ", Jenis Kelamin: " +
-              interaksi_dengan.jk +
-              ", RT: " +
-              interaksi_dengan.rt +
-              "</li>"
+            "Nama: " +
+            interaksi_dengan.nama +
+            ", Jenis Kelamin: " +
+            interaksi_dengan.jk +
+            ", RT: " +
+            interaksi_dengan.rt +
+            "</li>"
           )
         );
       });
@@ -53,20 +68,20 @@ function showPerson(nama) {
       $list.append("<p>Tidak menularkan ke orang lain</p>");
     }
   },
-  api.getDegreeCentrality(nama).then((person) =>{
-    if (!person) return;
+    api.getDegreeCentrality(nama).then((person) => {
+      if (!person) return;
 
-    const $list = $("#degree").empty();
-    if (person.total.nama != null) {
-      person.total.forEach((total) => {
-        $list.append($(total.dc)
-        );
-      });
-    } else {
-      $list.append("<p>Belum memkompile graf</p>");
-    }
-  })
-  , "json");
+      const $list = $("#degree").empty();
+      if (person.total.nama != null) {
+        person.total.forEach((total) => {
+          $list.append($(total.dc)
+          );
+        });
+      } else {
+        $list.append("<p>Belum memkompile graf</p>");
+      }
+    })
+    , "json");
 }//menunjukkan interaksi masing2 ID kontak setelah klik beserta centrality
 
 function search(showFirst = true) {
@@ -78,10 +93,10 @@ function search(showFirst = true) {
       persons.forEach((person, index) => {
         $(
           "<tr>" +
-            `<td class='person'>${person.nama}</td>` +
-            `<td>${person.jk}</td>` +
-            `<td>${person.rt}</td>` +
-            "</tr>"
+          `<td class='person'>${person.nama}</td>` +
+          `<td>${person.jk}</td>` +
+          `<td>${person.rt}</td>` +
+          "</tr>"
         )
           .appendTo(t)
           .click(function () {
