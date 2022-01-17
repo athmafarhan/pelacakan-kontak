@@ -19,20 +19,35 @@ $(function () {
 
   $(document).on('click', '#submit_csv', function (e) {
     e.preventDefault();
+    let queryInisialitationList = ""
     let queryInisialitation = ""
+    let queryRelationList = "CREATE\n "
+    let queryRelation = ""
 
     let csv_form = document.getElementById("csv_form")
     let fileCSV = csv_form.files[0];
     // console.log(csv_form.files[0]);
 
     Papa.parse(fileCSV, {
+      header: false,
       complete: function (results) {
-        for (let i = 0; i < results.data.length - 1; i++) {
-          let element = results.data[i];
-          let query = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "');\n";
-          queryInisialitation += query
+        for (let j = 0 + 1; j < results.data.length - 1; j++) {
+          let element = results.data[j];
+          queryInisialitation = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "');\n";
+          queryInisialitationList += queryInisialitation
+          for (let i = 0 + 1; i < results.data[0].length; i++) {
+            // const element = array[i];
+            // console.log(results.data[j][i]);
+            if (results.data[j][i] == "1") {
+              queryRelation = "(" + results.data[j][0] + ")-[:Kontak_Dengan]->(" + results.data[0][i] + "),\n";
+              queryRelationList += queryRelation;
+            }
+
+          }
         }
-        console.log(queryInisialitation);
+        console.log('finish');
+        console.log(queryInisialitationList);
+        console.log(queryRelationList);
         // console.log("Finished:", results.data);
       }
     })
