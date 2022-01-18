@@ -171,6 +171,19 @@ function renderGraph() {
       .attr("r", 3)
       .call(force.drag);
 
+    const text = svg
+      .selectAll('.text')
+      .data(graph.nodes)
+      .enter()
+      .append("text")
+      .attr("font-size", (d) => {
+        return "text " + d.label;
+      })
+      .text((d) => {
+        return d.nama;
+      });
+      
+
     // html title attribute
     node.append("title").text((d) => {
       return d.title;
@@ -197,6 +210,14 @@ function renderGraph() {
           return d.x;
         })
         .attr("cy", (d) => {
+          return d.y;
+        });
+
+      text
+        .attr("dx", (d) => {
+          return d.x;
+        })
+        .attr("dy", (d) => {
           return d.y;
         });
     });
