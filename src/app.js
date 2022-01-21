@@ -33,13 +33,13 @@ $(function () {
       complete: function (results) {
         for (let j = 0 + 1; j < results.data.length - 1; j++) {
           let element = results.data[j];
-          queryInisialitation = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "');\n";
+          queryInisialitation = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "'});\n";
           queryInisialitationList += queryInisialitation
           for (let i = 0 + 1; i < results.data[0].length; i++) {
             // const element = array[i];
             // console.log(results.data[j][i]);
             if (results.data[j][i] == "1") {
-              queryRelation = "(" + results.data[j][0] + ")-[:Kontak_Dengan]->(" + results.data[0][i] + "),\n";
+              queryRelation = "MERGE(" + results.data[j][0] + ")-[:Kontak_Dengan]->(" + results.data[0][i] + ")\n";
               queryRelationList += queryRelation;
             }
 
