@@ -89,21 +89,7 @@ function showPerson(nama) {
     } else {
       $list.append("<p>Tidak menularkan ke orang lain</p>");
     }
-  },
-    api.getDegreeCentrality(nama).then((person) => {
-      if (!person) return;
-
-      const $list = $("#degree").empty();
-      if (person.total.nama != null) {
-        person.total.forEach((total) => {
-          $list.append($(total.dc)
-          );
-        });
-      } else {
-        $list.append("<p>Belum memkompile graf</p>");
-      }
-    })
-    , "json");
+  }, "json");
 }//menunjukkan interaksi masing2 ID kontak setelah klik beserta centrality
 
 function search(showFirst = true) {
