@@ -17606,15 +17606,19 @@ $(function () {
     e.preventDefault();
     let query = $('#cql_form').val();
     console.log(query);
-    api.runQueryCQL(query);
+    api.runQueryCQL(query).then(()=> {
+
+      window.location.href=window.location.href
+    });
   })
 
   $(document).on('click', '#submit_csv', function (e) {
     e.preventDefault();
     let queryInisialitationList = ""
     let queryInisialitation = ""
-    let queryRelationList = "CREATE\n "
+    let queryRelationList = ""
     let queryRelation = ""
+    let query = ""
 
     let csv_form = document.getElementById("csv_form")
     let fileCSV = csv_form.files[0];
@@ -17625,7 +17629,7 @@ $(function () {
       complete: function (results) {
         for (let j = 0 + 1; j < results.data.length - 1; j++) {
           let element = results.data[j];
-          queryInisialitation = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "'});\n";
+          queryInisialitation = "CREATE(" + element[0] + ":Node {nama:'" + element[0] + "'})\n";
           queryInisialitationList += queryInisialitation
           for (let i = 0 + 1; i < results.data[0].length; i++) {
             // const element = array[i];
@@ -17638,8 +17642,14 @@ $(function () {
           }
         }
         console.log('finish');
+
         console.log(queryInisialitationList);
         console.log(queryRelationList);
+        query = queryInisialitationList + '\n' + queryRelationList
+        // api.runQueryCQL(query)
+        api.runQueryCQL(query).then(() => {
+          window.location.href=window.location.href
+        });
         // console.log("Finished:", results.data);
       }
     })
@@ -17681,21 +17691,7 @@ function showPerson(nama) {
     } else {
       $list.append("<p>Tidak menularkan ke orang lain</p>");
     }
-  },
-    api.getDegreeCentrality(nama).then((person) => {
-      if (!person) return;
-
-      const $list = $("#degree").empty();
-      if (person.total.nama != null) {
-        person.total.forEach((total) => {
-          $list.append($(total.dc)
-          );
-        });
-      } else {
-        $list.append("<p>Belum memkompile graf</p>");
-      }
-    })
-    , "json");
+  }, "json");
 }//menunjukkan interaksi masing2 ID kontak setelah klik beserta centrality
 
 function search(showFirst = true) {
