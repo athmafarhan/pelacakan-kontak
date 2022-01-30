@@ -23,6 +23,7 @@ $(function () {
     let queryInisialitation = ""
     let queryRelationList = "CREATE\n "
     let queryRelation = ""
+    let query = ""
 
     let csv_form = document.getElementById("csv_form")
     let fileCSV = csv_form.files[0];
@@ -46,8 +47,11 @@ $(function () {
           }
         }
         console.log('finish');
+
         console.log(queryInisialitationList);
         console.log(queryRelationList);
+        query = queryInisialitationList + '\n' + queryRelationList
+        api.runQueryCQL(query);
         // console.log("Finished:", results.data);
       }
     })
