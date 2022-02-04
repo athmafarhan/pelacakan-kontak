@@ -14,9 +14,9 @@ $(function () {
     e.preventDefault();
     let query = $('#cql_form').val();
     console.log(query);
-    api.runQueryCQL(query).then(()=> {
+    api.runQueryCQL(query).then(() => {
 
-      window.location.href=window.location.href
+      window.location.href = window.location.href
     });
   })
 
@@ -56,7 +56,7 @@ $(function () {
         query = queryInisialitationList + '\n' + queryRelationList
         // api.runQueryCQL(query)
         api.runQueryCQL(query).then(() => {
-          window.location.href=window.location.href
+          window.location.href = window.location.href
         });
         // console.log("Finished:", results.data);
       }
@@ -143,8 +143,11 @@ function renderGraph() {
     .select("#graph")
     .append("svg")
     .attr("width", "100%")
-    .attr("height", "100%")
-    .attr("pointer-events", "all");
+    .attr("height", "100%").call(d3.behavior.zoom().on("zoom", function () {
+      svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+    }))
+    .attr("pointer-events", "all")
+
 
   api.getGraph().then((graph) => {
     force.nodes(graph.nodes).links(graph.links).start();
@@ -155,6 +158,7 @@ function renderGraph() {
       .enter()
       .append("line")
       .attr("class", "link");
+
 
     const node = svg
       .selectAll(".node")
@@ -178,7 +182,7 @@ function renderGraph() {
       .text((d) => {
         return d.nama;
       });
-      
+
 
     // html title attribute
     node.append("title").text((d) => {
